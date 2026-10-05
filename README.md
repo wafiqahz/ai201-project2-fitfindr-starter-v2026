@@ -251,6 +251,12 @@ Got these vintage Levi's 501s on Depop for $38 and they fit like an absolute dre
 
 ---
 
+## Loop and State (Milestone 5)
+Happy path: Item in session["selected_item"] is the same one that reached suggest_outfit.
+Query that matches nothing: session["outfit_suggestion"] and session["fit_card"] is None
+
+---
+
 ## How I Used AI
 
 <!-- Two specific moments. What you asked, what came back, what you changed.
