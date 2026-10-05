@@ -40,8 +40,7 @@
 ## What This Does
 
 <!-- Three or four sentences: what a user asks for, and what they get back. -->
-
-
+A user describes a thrift find they want in plain English, and FitFindr searches for the user's description in its listings. The user gets back that listing, one or two outfit ideas that pair the thrift find with pieces from their own wardrobe (or general styling tips if the wardrobe is not provided), and a short caption about the outfit ready to post. If nothing matches the user's descrription, FitFindr returns suggestions to change the description.
 
 ---
 
@@ -268,15 +267,15 @@ Query that matches nothing: session["outfit_suggestion"] and session["fit_card"]
 
 **Moment 1**
 
-- *What I asked for:*
-- *What came back:*
-- *What I changed:*
+- *What I asked for:* I asked Claude Code to help me write the tool function definitions given the tool specs I wrote in an earlier milestone.
+- *What came back:* It gave me a block of code to paste under the corresponding function name.
+- *What I changed:* I read through the blocks of code, verified that it matched the requirements outlined in the comments, and tested using terminal commands, making minor edits as needed.
 
 **Moment 2**
 
-- *What I asked for:*
-- *What came back:*
-- *What I changed:*
+- *What I asked for:* I asked Claude to verify that the criteria I wrote were specific and testable.
+- *What came back:* Claude explained why some of the criteria should be 4 of 5 and why some should be 5 of 5, depending on if the model is called or if the criteria is a result of a series of deterministic actions hard-coded into the system.
+- *What I changed:* This helped me revise my criteria to have reasonable requirements to test on.
 
 <!-- ═══════════════════════ UNIT 4 — THE TEST ═══════════════════════
 
