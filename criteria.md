@@ -24,7 +24,7 @@ data earns credit; *"80% seemed reasonable"* does not.
 Given a query that matches at least one listing, the agent completes all three
 tool calls and returns a fit card — in at least 4 of 5 tries.
 
-**Why this target:**
+**Why this target:** My search is a plain keyword match against titles, descriptions, and tags. A query that should match can still miss if words like "tee" vs. "t-shirt" differ. Thus, 4 of the 4 tries is reasonable for a regex match.
 <!-- Why 4 of 5 and not 5 of 5? Something about your search, probably —
      "my search is a plain keyword match and some phrasings will miss" is a
      real answer. -->
@@ -36,13 +36,15 @@ tool calls and returns a fit card — in at least 4 of 5 tries.
 Given a query that matches no listings, the agent stops before calling
 `suggest_outfit` and returns a message naming what to change — 5 of 5 tries.
 
-**Why this target:**
+**Why this target:** Nothing on this path calls the model and should be left to chance. An empty return from search_listings should deterministically end the loop every time.
 <!-- Why is 5 of 5 reasonable here when criterion 1 isn't? What's different
      about this path? -->
 
 ---
 
-## 3. Something about state
+## 3. The best match from search_results is what reaches selected_item
+
+Give a query that matches at least one listing, session["selected_item"] equals session["search_results"][0] for 5 of 5 tries.
 
 <!-- YOU WRITE THIS ONE.
 
@@ -54,15 +56,14 @@ Given a query that matches no listings, the agent stops before calling
      compares session["selected_item"] against what actually reached
      suggest_outfit is the shape you're after. -->
 
-
-
-**Why this target:**
-
+**Why this target:** The session state should always be consistent from one tool's result to the next tool's input, for an agent to be working properly.
 
 
 ---
 
-## 4. Something about the fit card
+## 4. The fit card is short, unique
+
+For the same matching query run 5 times, each fit card is 2–4 sentences, and mentions the selected item's name, price, and platform in at least 4 of 5 tries.
 
 <!-- YOU WRITE THIS ONE.
 
@@ -75,15 +76,13 @@ Given a query that matches no listings, the agent stops before calling
      sentence? A card longer than a caption anyone would post? Any of those can
      be turned into a number. -->
 
-
-
-**Why this target:**
-
-
+**Why this target:** Different wording each time and some randomness is expected for a model call, but the post must be short and include key information most of the time.
 
 ---
 
-## 5. Your choice
+## 5. The price ceiling is respected
+
+For a query with price constraints, every listing in session["search_results"] has a price within those constraints — in 4 of 5 tries.
 
 <!-- YOU WRITE THIS ONE TOO.
 
@@ -93,10 +92,7 @@ Given a query that matches no listings, the agent stops before calling
      or an observable outcome. -->
 
 
-
-**Why this target:**
-
-
+**Why this target:** Similar to contraint 1, a regex matching for queries can never compensate for all possible phrasing, so 4 of the 5 tries is reasonable.
 
 ---
 
