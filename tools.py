@@ -20,7 +20,8 @@ That last line is what your loop branches on. "Returns a list" earns nothing —
 the description has to say what is *in* the list.
 """
 
-import config  # noqa: F401 — you'll use this in search_listings
+import re
+import config
 from generate import generate
 from utils.data_loader import load_listings
 
@@ -78,8 +79,66 @@ def search_listings(
     Test it from a terminal before you move on:
         python -c "from tools import search_listings; print(search_listings('graphic tee', max_price=30))"
     """
-    # TODO: replace this with your implementation
-    return []
+    listings = load_listings()
+
+    if max_price is not None:
+        listings = [item for item in listings if item["price"] <= max_price]
+
+    if size:
+        listings = [item for item in listings if _size_matches(size, item["size"])]
+
+    keywords = _words(description) - _STOPWORDS
+    if not keywords:
+        # Nothing to score on ("size M under $20"): every filtered listing
+        # is equally good, so keep them in data order.
+        return listings[: config.SEARCH_RESULT_LIMIT]
+
+    scored = []
+    for item in listings:
+        score = len(keywords & _listing_words(item))
+        if score > 0:
+            scored.append((score, item))
+
+    # sort() is stable, so listings with equal scores stay in data order.
+    scored.sort(key=lambda pair: pair[0], reverse=True)
+    return [item for _, item in scored[: config.SEARCH_RESULT_LIMIT]]
+
+
+# Words that appear in queries but say nothing about the item.
+_STOPWORDS = {"a", "an", "and", "the", "for", "with", "in", "of", "to", "i", "want", "looking", "some"}
+
+
+def _words(text: str) -> set[str]:
+    """Lowercase alphanumeric words — "Y2K Baby-Tee!" → {"y2k", "baby", "tee"}."""
+    return set(re.findall(r"[a-z0-9]+", (text or "").lower()))
+
+
+def _listing_words(item: dict) -> set[str]:
+    """Every word a query could match: title, description, category, tags, colors."""
+    text = " ".join(
+        [item["title"], item["description"], item["category"]]
+        + item["style_tags"]
+        + item["colors"]
+    )
+    return _words(text)
+
+
+def _size_matches(wanted: str, listing_size: str) -> bool:
+    """
+    Whole-token size match, case-insensitive.
+
+    The listing size is split on "/", spaces and parentheses, and the requested
+    size has to equal one of the pieces (or the whole string, for multi-word
+    sizes like "US 8.5"). So "M" matches "S/M" and "M/L", but "S" does not
+    match "US 9" and "L" does not match "XL". "One Size" listings fit anyone.
+    """
+    wanted = " ".join(wanted.lower().split())
+    have = " ".join(listing_size.lower().split())
+    if have.startswith("one size"):
+        return True
+    if wanted == have:
+        return True
+    return wanted in re.split(r"[/\s()]+", have)
 
 
 # ── Tool 2: suggest_outfit ────────────────────────────────────────────────────
@@ -112,8 +171,47 @@ def suggest_outfit(new_item: dict, wardrobe: dict) -> str:
     Test it from a terminal before you move on:
         python -c "from tools import suggest_outfit; from utils.data_loader import get_example_wardrobe, load_listings; print(suggest_outfit(load_listings()[0], get_example_wardrobe()))"
     """
-    # TODO: replace this with your implementation
-    return ""
+    item_text = _describe_item(new_item)
+    items = (wardrobe or {}).get("items") or []
+
+    system = (
+        "You are a thrift-store stylist. Be concrete and brief: one or two "
+        "outfits, each as a short paragraph. No preamble, no headings."
+    )
+
+    if not items:
+        # Empty wardrobe: nothing to combine with, so give general advice.
+        prompt = (
+            f"Someone is considering this thrifted item:\n{item_text}\n\n"
+            "They haven't told us what's in their wardrobe. Suggest one or two "
+            "outfits built around this item, describing the kinds of pieces, "
+            "colors and shoes that would go with it."
+        )
+    else:
+        wardrobe_text = "\n".join(
+            f"- {w['name']} ({w['category']}; colors: {', '.join(w.get('colors', []))})"
+            for w in items
+        )
+        prompt = (
+            f"Someone is considering this thrifted item:\n{item_text}\n\n"
+            f"Here is what they already own:\n{wardrobe_text}\n\n"
+            "Suggest one or two outfits that pair the new item with pieces "
+            "from their wardrobe. Name each wardrobe piece exactly as listed."
+        )
+
+    return generate(prompt, system=system)
+
+
+def _describe_item(item: dict) -> str:
+    """One listing as a few readable lines for a prompt. Brand is often None."""
+    lines = [
+        f"{item['title']} — ${item['price']:g} on {item['platform']}",
+        f"Category: {item['category']}, size {item['size']}, {item['condition']} condition",
+        f"Colors: {', '.join(item['colors'])}; style: {', '.join(item['style_tags'])}",
+    ]
+    if item.get("brand"):
+        lines.append(f"Brand: {item['brand']}")
+    return "\n".join(lines)
 
 
 # ── Tool 3: create_fit_card ───────────────────────────────────────────────────
@@ -152,5 +250,17 @@ def create_fit_card(outfit: str, new_item: dict) -> str:
     Test it from a terminal before you move on:
         python -c "from tools import create_fit_card; from utils.data_loader import load_listings; print(create_fit_card('jeans and white sneakers', load_listings()[0]))"
     """
-    # TODO: replace this with your implementation
-    return ""
+    if not outfit or not outfit.strip():
+        return "Can't write a fit card without an outfit suggestion."
+
+    system = (
+        "You write captions for thrift finds, the way a real person posts "
+        "them. Two to four sentences. No hashtag walls, no product-listing tone."
+    )
+    prompt = (
+        f"The find:\n{_describe_item(new_item)}\n\n"
+        f"How they're styling it:\n{outfit}\n\n"
+        "Write the caption. Mention the item, its price and the platform "
+        "exactly once each, and be specific about the vibe of the outfit."
+    )
+    return generate(prompt, system=system)
