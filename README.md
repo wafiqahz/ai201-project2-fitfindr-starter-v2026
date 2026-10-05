@@ -59,24 +59,24 @@
 
 ### `search_listings`
 
-- **What it does:**
-- **Inputs:** <!-- name and type each: `max_price` (float), not "a price" -->
-- **Returns:**
-- **When it has nothing:**
+- **What it does:** Searches the listings data for items matching a description, and optionally a size and a price ceiling.
+- **Inputs:** description (string), size (string), max_price (float)
+- **Returns:** A list of matching listing dicts with the best match first. Each listing dict includes id, title description, category, style_tags (list), size, condition, price (float), colors (list), brand (str or None), and platform.
+- **When it has nothing:** Returns an empty list.
 
 ### `suggest_outfit`
 
-- **What it does:**
-- **Inputs:**
-- **Returns:**
-- **When it has nothing:**
+- **What it does:** Suggests outfits given a thrifted item and a user's wardrobe by calling the model.
+- **Inputs:** new_item (dict), wardrobe (dict)
+- **Returns:** A non-empty string with outfit suggestions
+- **When it has nothing:** Still returns general styling advice.
 
 ### `create_fit_card`
 
-- **What it does:**
-- **Inputs:**
-- **Returns:**
-- **When it has nothing:**
+- **What it does:** Writes a short post that a user can post about their outfit find.
+- **Inputs:** outfit (string, from suggest_outfit()), new_item (listing dict)
+- **Returns:** 2-4 sentence caption of the outfit
+- **When it has nothing:** If outfit is empty, the function still returns a descriptive message.
 
 ---
 
@@ -93,13 +93,13 @@
      The grader checks your code against what you claim here, so the file and
      function have to be real. -->
 
-**Branch rule:**
+**Branch rule:** If search_listings returns an empty list, put an error message in the session and return the session without calling suggest_outfit and create_fit_card. The message says what was searched for and what to change (i.e., broader words, drop or change the size, or try a neighboring one). Otherwise, take the first result in results and pass it to suggest_outfit with the user's wardrobe.
 
 **Where it lives:** `agent.py::run_agent`
 
-**How the query is parsed:** <!-- regex, string splitting, or asking the model — say which -->
+**How the query is parsed:** With regex. The function parse_query checks for prices as numbers after qualifier words, sizes after the word "size", and whatever description is left is read as the description.
 
-**What moves through the session:** <!-- which fields, in what order -->
+**What moves through the session:** One dict, created by new_session, stores all information throughout the session. Query is the raw text the user typed, parsed is the parsed form of the query, search_results is the full list returned by search_listings, selected_item is the first returned listing dict (best match), outfit_suggestion is the string returned by suggest_outfit, and fit_card is the string returned by create_fit_card. The variable error starts as None, but is set if an issue arises.
 
 ---
 
