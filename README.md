@@ -283,6 +283,33 @@ Query that matches nothing: session["outfit_suggestion"] and session["fit_card"]
      Don't fill these in during unit 3.
      ═══════════════════════════════════════════════════════════════════ -->
 
+
+---
+
+## Failure Testing
+
+**Empty Search:**
+
+'''
+Nothing in the listings matched description 'designer ballgown', size XXS, under $5.
+Things to change: try broader words — 'jacket' finds more than 'cropped corduroy jacket'; drop the size, or try a neighbouring one; raise the price ceiling above $5.
+'''
+
+**Empty wardrobe:**
+'''
+Outfit:   Pair the butterfly tee with a low-rise, medium-wash denim mini skirt with frayed hems, a pink beaded shoulder bag, and chunky white platform slide sandals for an easy, early-2000s mall-rat look. 
+
+Layer the baby tee over a thin, sheer pastel-purple long-sleeve mesh top, tuck it into wide-leg olive green cargo pants, and finish with beat-up retro sneakers like Adidas Sambas and a nylon mini backpack.
+
+Fit card: Scored this little butterfly tee on Depop for just $18 and I’m so obsessed. Wearing it with a frayed denim mini and beaded bag for peak 2000s mall rat energy. Honestly might layer it over mesh with cargos next time, but either way it’s my new favorite piece.
+'''
+
+**Model unavailable:** 
+'''
+The model couldn't be reached, so the outfit and caption steps didn't run. The search worked — 5 listing(s) were found. Check GEMINI_API_KEY in your .env, then run the same query again.
+What the service said: The model rejected your API key. Check GEMINI_API_KEY in your .env file, or create a fresh key at aistudio.google.com.
+'''
+
 ---
 
 ## Run Log — Before
@@ -360,22 +387,53 @@ that produced it:
 **Happy path**
 
 ```
+[1] parse_query
+      in:  vintage graphic tee under $30
+      out: {'description': 'vintage graphic tee', 'size': None, 'max_price': 30.0}
+[2] search_listings (via MCP)
+      in:  {'description': 'vintage graphic tee', 'size': None, 'max_price': 30.0}
+      out: 10 items: Y2K Baby Tee — Butterfly Print, Graphic Tee — 2003 Tour Bootleg Style, Vintage Band Tee — Faded Grey … +7 more
+      →    10 match(es)
+[3] select_item
+      out: Y2K Baby Tee — Butterfly Print ($18.0, depop)
+[4] suggest_outfit
+      in:  Y2K Baby Tee — Butterfly Print ($18.0, depop)
+      out: Pair the Y2K Baby Tee with the baggy straight-leg jeans and chunky white sneakers, then layer the black croppe…
+      →    10 wardrobe item(s)
+[5] create_fit_card
+      in:  Y2K Baby Tee — Butterfly Print ($18.0, depop)
+      out: Found this butterfly baby tee on depop for $18 and haven’t stopped wearing it since. It’s giving total 2000s p…
 
+Found:    Y2K Baby Tee — Butterfly Print — $18.0 on depop
+
+Outfit:   Pair the Y2K Baby Tee with the baggy straight-leg jeans and chunky white sneakers, then layer the black cropped zip hoodie on top. Accessorize with the black crossbody bag for an easy, casual everyday look.
+
+Tuck the Y2K Baby Tee into the wide-leg khaki trousers, cinch with the brown leather belt, and finish with the black combat boots and vintage black denim jacket thrown over your shoulders for a contrast of soft and edgy textures.
+
+Fit card: Found this butterfly baby tee on depop for $18 and haven’t stopped wearing it since. It’s giving total 2000s pop princess when paired with baggy denim and chunky sneakers, but I'm obsessed with how it looks dressed down with wide-leg trousers and combat boots. Such an easy little top to just throw on and completely make the outfit.
+
+0 model calls this session, 2 served from cache
 ```
 
 **Empty search**
 
 ```
+[1] parse_query
+      in:  designer ballgown size XXS under $5
+      out: {'description': 'designer ballgown', 'size': 'XXS', 'max_price': 5.0}
+[2] search_listings (via MCP)
+      in:  {'description': 'designer ballgown', 'size': 'XXS', 'max_price': 5.0}
+      out: [] (empty)
+      →    0 match(es)
+[3] branch
+      →    search returned []: stopping before suggest_outfit
 
+Nothing in the listings matched description 'designer ballgown', size XXS, under $5.
+Things to change: try broader words — 'jacket' finds more than 'cropped corduroy jacket'; drop the size, or try a neighbouring one; raise the price ceiling above $5.
 ```
 
-**On the MCP move:** <!-- what changed in your code, and whether anything
-behaved differently afterwards. If the rewire didn't work, say exactly where it
-broke — the error text and the last thing that worked. That earns the point in
-full. -->
-
-
-
+**On the MCP move:** <!-- what changed in your code, and whether anything behaved differently afterwards. If the rewire didn't work, say exactly where it broke — the error text and the last thing that worked. That earns the point in full. -->
+The MCP resulted in my agent working as expected. Search_listings was still able to be called. One thing I noticed: _search() silently falls back to the direct call if MCP fails, so a broken server wouldn't show up as an error.
 ---
 
 ## The Improvement
