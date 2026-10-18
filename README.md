@@ -385,14 +385,14 @@ matching query completes  (example wardrobe)
 
 | # | Criterion | Target | Verdict | How I decided |
 |---|---|---|---|---|
-| 1 |  |  |  |  |
-| 2 |  |  |  |  |
-| 3 |  |  |  |  |
-| 4 |  |  |  |  |
-| 5 |  |  |  |  |
+| 1 | Full three-tool run returns a fit card | 4 of 5 | 5/5 | Checked the trace to see that all 3 tools were called without errors |
+| 2 | Empty search stops before tool 2 | 5 of 5 | 5/5 | Checked the trace that only the first tool was called and a message returned asking for more information |
+| 3 | The best match from search_results is what reaches selected_item | 5 of 5 | 5/5 | Compared search_listings results and the select_item in trace |
+| 4 | Fit card is 2–4 sentences and mentions the selected item's name, price, and platform | 4 of 5 | 4/5 | Checked create_fit_card output for sentence number and item information |
+| 5 | Price ceiling is respected | 4 of 5 | 5/5 | Checked price for all items in search_results and compared to given price constraint |
 
 **Diagnoses**
-
+All criteria were met. For criteria 4, one of the tries resulted in a FAIL due to the fit card output not including the item's full name, but since the defined criteria only required 4/5 passes, the criterion was still met.
 
 
 ---
