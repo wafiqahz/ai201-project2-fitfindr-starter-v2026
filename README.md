@@ -277,6 +277,7 @@ Query that matches nothing: session["outfit_suggestion"] and session["fit_card"]
 - *What came back:* Claude explained why some of the criteria should be 4 of 5 and why some should be 5 of 5, depending on if the model is called or if the criteria is a result of a series of deterministic actions hard-coded into the system.
 - *What I changed:* This helped me revise my criteria to have reasonable requirements to test on.
 
+
 <!-- ═══════════════════════ UNIT 4 — THE TEST ═══════════════════════
 
      Don't fill these in during unit 3.
