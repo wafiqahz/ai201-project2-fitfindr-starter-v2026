@@ -325,16 +325,41 @@ What the service said: The model rejected your API key. Check GEMINI_API_KEY in 
 
 | Criterion | Target | Try 1 | Try 2 | Try 3 | Try 4 | Try 5 | Verdict |
 |---|---|---|---|---|---|---|---|
-| 1.  |  |  |  |  |  |  |  |
-| 2.  |  |  |  |  |  |  |  |
-| 3.  |  |  |  |  |  |  |  |
-| 4.  |  |  |  |  |  |  |  |
-| 5.  |  |  |  |  |  |  |  |
+| 1. Full three-tool run returns a fit card | 4 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 2. Empty search stops before tool 2 | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 3. The best match from search_results is what reaches selected_item | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 4. Fit card is 2–4 sentences and mentions the selected item's name, price, and platform | 4 of 5 | FAIL | PASS | PASS | PASS | PASS | MET (4/5) |
+| 5. Price ceiling is respected | 4 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
 
 **Real output from one try**, pasted as text, naming the file and function
 that produced it:
 
 ```
+Output of criterion 1, try 1
+run_eval.py::run_once  - ran the scenario
+agent.py::run_agent, trace.step()  - printed the trace steps
+mcp_server.py::search_listings - search went over MCP
+tools.py::suggest_outfit, create_fit_card - the outfit and fit card
+
+matching query completes  (example wardrobe)
+ query: vintage graphic tee under $30
+[1] parse_query
+      in:  vintage graphic tee under $30
+      out: {'description': 'vintage graphic tee', 'size': None, 'max_price': 30.0}
+[2] search_listings (via MCP)
+      in:  {'description': 'vintage graphic tee', 'size': None, 'max_price': 30.0}
+      out: 10 items: Y2K Baby Tee — Butterfly Print, Graphic Tee — 2003 Tour Bootleg Style, Vintage Band Tee — Faded Grey … +7 more
+      →    10 match(es)
+[3] select_item
+      out: Y2K Baby Tee — Butterfly Print ($18.0, depop)
+[4] suggest_outfit
+      in:  Y2K Baby Tee — Butterfly Print ($18.0, depop)
+      out: Pair the Y2K baby tee with the baggy straight-leg jeans, layered under the vintage black denim jacket, and fin…
+      →    10 wardrobe item(s)
+[5] create_fit_card
+      in:  Y2K Baby Tee — Butterfly Print ($18.0, depop)
+      out: Scored this butterfly Y2K baby tee on Depop for $18 and I am fully living out my 2000s mall-goth fantasies. I'…
+  try 1: completed — fit card 342 chars
 
 ```
 

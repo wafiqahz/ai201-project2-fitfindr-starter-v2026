@@ -35,6 +35,28 @@ SCENARIOS = [
         "wardrobe": "empty",
         "criterion": None,
     },
+        {
+        # State: does the top search result reach selected_item? Criterion 3.
+        "name": "selected item is top search result",
+        "query": "denim jacket",
+        "wardrobe": "example",
+        "criterion": 3,
+    },
+    {
+        # Same query every try, so fit cards can be compared. Criterion 4.
+        "name": "fit card short and complete",
+        "query": "vintage graphic tee under $30",
+        "wardrobe": "example",
+        "criterion": 4,
+    },
+    {
+        # A price ceiling the search has to respect. Criterion 5.
+        "name": "price ceiling respected",
+        "query": "jacket under $43",
+        "wardrobe": "example",
+        "criterion": 5,
+    },
+
     # TODO: add what your criteria 3, 4 and 5 need.
     #
     # Set "criterion" to the number in criteria.md that the scenario tests.
