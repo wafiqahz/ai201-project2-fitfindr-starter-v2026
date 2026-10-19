@@ -486,7 +486,7 @@ The MCP resulted in my agent working as expected. Search_listings was still able
 
 <!-- If it made things worse, say that. Honestly reported, that earns full
      credit and is more interesting than one that worked. -->
-Yes, it did help. The fit card now always includes the item's exact name, in this case "Y2K baby tee". I wonder if this was a necessary fix, though, depending on what the agent should actually accomplish.
+Yes, it did help. The fit card now always includes the item's exact name, in this case "Y2K baby tee". I wonder if this was a necessary fix, though, depending on what the agent should actually accomplish. In fact, I might suggest switching it back and changing my criterion to be less restrictive to include the EXACT name of the listed item instead of a generalized name.
 
 
 ---
