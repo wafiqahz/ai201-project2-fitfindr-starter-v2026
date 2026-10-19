@@ -260,7 +260,7 @@ def create_fit_card(outfit: str, new_item: dict) -> str:
     prompt = (
         f"The find:\n{_describe_item(new_item)}\n\n"
         f"How they're styling it:\n{outfit}\n\n"
-        "Write the caption. Mention the item, its price and the platform "
+        "Write the caption. Mention the item's exact name, its price and the platform "
         "exactly once each, and be specific about the vibe of the outfit."
     )
     return generate(prompt, system=system)

@@ -468,25 +468,25 @@ The MCP resulted in my agent working as expected. Search_listings was still able
 
      `python run_eval.py --label after` -->
 
-**What I changed:**
+**What I changed:** I edited the prompt in create_fit_card to include the item's exact name, rather than a generic or paraphrased name.
 
-**Which failure it was meant to fix:**
+**Which failure it was meant to fix:** It is meant to fix the near-miss from Criterion 4, where we expect the fit card to include the chosen item's name.
 
 ### Run Log — After
 
 | Criterion | Target | Try 1 | Try 2 | Try 3 | Try 4 | Try 5 | Verdict |
 |---|---|---|---|---|---|---|---|
-| 1.  |  |  |  |  |  |  |  |
-| 2.  |  |  |  |  |  |  |  |
-| 3.  |  |  |  |  |  |  |  |
-| 4.  |  |  |  |  |  |  |  |
-| 5.  |  |  |  |  |  |  |  |
+| 1. Full three-tool run returns a fit card | 4 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 2. Empty search stops before tool 2 | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 3. The best match from search_results is what reaches selected_item | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 4. Fit card is 2–4 sentences and mentions the selected item's name, price, and platform | 4 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 5. Price ceiling is respected | 4 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
 
 **Did it help, and how do I know:**
 
 <!-- If it made things worse, say that. Honestly reported, that earns full
      credit and is more interesting than one that worked. -->
-
+Yes, it did help. The fit card now always includes the item's exact name, in this case "Y2K baby tee". I wonder if this was a necessary fix, though, depending on what the agent should actually accomplish.
 
 
 ---
@@ -496,7 +496,7 @@ The MCP resulted in my agent working as expected. Search_listings was still able
 <!-- For each criterion still missed: what you'd do, and why you stopped where
      you did. "I ran out of time" is fine if it's true. Pretending nothing is
      left is not. -->
-
+Every criterion was met. However, there are still improvements that can be made. For one, the query parsing only handles phrases it knows using regex, so "nothing over thirty dollars" wouldn't be used as a price constraint. Similarly, "tee" vs. "t-shirt" and "sweater" vs. "knit" would be treated differently, which may not be the intended functionality. Even my improvement has a tradeoff: requiring the listed title in the fit caption makes it sound less like a real post. Furthermore, the agent always picks the first result and never offers alternatives, which may not be a robust way to deal with search results.
 
 
 <!-- ═════════════════════════════════════════════════════════════════════
